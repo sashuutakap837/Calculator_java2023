@@ -1,0 +1,144 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class Model {
+    public static double сложение(double x, double y) {
+        return x + y;
+    }
+
+    public static double вычитание(double x, double y) {
+        return x - y;
+    }
+
+    public static double умножение(double x, double y) {
+        return x * y;
+    }
+
+    public static double деление(double x, double y) {
+        return x / y;
+    }
+
+    public static double логарифм(double x, double основание) {
+        return Math.log(x) / Math.log(основание);
+    }
+
+    public static double модуль(double x) {
+        return Math.abs(x);
+    }
+
+    public static double степень(double x, double показатель) {
+        return Math.pow(x, показатель);
+    }
+}
+
+class History {
+    private List<String> вычисления;
+
+    public History() {
+        вычисления = new ArrayList<>();
+    }
+
+    public void добавитьВычисление(String выражение) {
+        вычисления.add(выражение);
+    }
+
+    public void показатьИсторию() {
+        System.out.println("История вычислений:");
+        for (String выражение : вычисления) {
+            System.out.println(выражение);
+        }
+    }
+
+    public void сохранитьВФайл(String имяФайла) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(имяФайла))) {
+            for (String выражение : вычисления) {
+                writer.write(выражение);
+                writer.newLine();
+            }
+            System.out.println("История вычислений сохранена в файл: " + имяФайла);
+        } catch (IOException e) {
+            System.out.println("Ошибка при сохранении истории вычислений в файл: " + e.getMessage());
+        }
+    }
+}
+
+class Calculator {
+    private History история;
+
+    public Calculator() {
+        история = new History();
+    }
+
+    public void запустить() {
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.print("Введите выражение (или 'q' для выхода): ");
+            String ввод = scanner.nextLine();
+
+            if (ввод.equals("q")) {
+                break;
+            }
+
+            String[] части = ввод.split(" ");
+            if (части.length != 3) {
+                System.out.println("Неверное выражение!");
+                continue;
+            }
+
+            double x = Double.parseDouble(части[0]);
+            double y = Double.parseDouble(части[2]);
+            String оператор = части[1];
+
+            double результат = 0;
+
+            switch (оператор) {
+                case "+":
+                    результат = Model.сложение(x, y);
+                    break;
+                case "-":
+                    результат = Model.вычитание(x, y);
+                    break;
+                case "*":
+                    результат = Model.умножение(x, y);
+                    break;
+                case "/":
+                    результат = Model.деление(x, y);
+                    break;
+                case "log":
+                    результат = Model.логарифм(x, y);
+                    break;
+                case "mod":
+                    результат = Model.модуль(x);
+                    break;
+                case "^":
+                    результат = Model.степень(x, y);
+                    break;
+                default:
+                    System.out.println("Неверный оператор!");
+                    continue;
+            }
+
+            System.out.println("Результат: " + результат);
+
+            String выражение = ввод + " = " + результат;
+            история.добавитьВычисление(выражение);
+        }
+
+        история.показатьИсторию();
+        System.out.print("Введите имя файла для сохранения истории вычислений: ");
+        String имяФайла = scanner.nextLine();
+        история.сохранитьВФайл(имяФайла);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Calculator калькулятор = new Calculator();
+        калькулятор.запустить();
+    }
+}
